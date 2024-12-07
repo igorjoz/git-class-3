@@ -27,10 +27,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!GameManager.instance.isInGame)
-        {
-            return;
-        }
 
         // check if 1 second (timestamp time) has passed
         if (IsGrounded() && Time.time >= timestamp)
@@ -45,13 +41,12 @@ public class PlayerController : MonoBehaviour
         }
 
         // GetMouseButtonDown != GetMouseButton
-        if (Input.GetMouseButtonDown(0)) 
-            {
+        if (Input.GetMouseButtonDown(0))
+        {
             if (!jumped)
             {
                 SoundManager.instance.PlayOnceJump();
                 rb.velocity = (new Vector2(0f, jumpForce)); // set force upwards
-                //rb.AddForce(new Vector2(0f, jumpForce * 40)); // alternative way: add force instead of setting it
                 jumped = true;
             }
             else if (!doubleJumped)
@@ -63,10 +58,12 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // holding left mouse button slows down falling
         if (Input.GetMouseButton(0) && rb.velocity.y <= 0)
         {
-            rb.AddForce(new Vector2(0f, liftingForce * Time.deltaTime));
+        }
+
+        if (Input.GetMouseButton(0) && rb.velocity.y <= 0)
+        {
         }
     }
 
@@ -76,6 +73,11 @@ public class PlayerController : MonoBehaviour
         {
             HandlePlayerDeath();
         }
+
+        if (Input.GetMouseButton(0) && rb.velocity.y <= 0)
+        {
+        }
+
         else if (other.CompareTag("Coin"))
         {
             GameManager.instance.HandleCoinCollection();
@@ -88,19 +90,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // check whether player touched ground: could be floor, platform, etc.
-    private bool IsGrounded()
-    {
-        RaycastHit2D hit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, 0.1f, whatIsFloor);
-
-        return hit.collider != null;
-    }
-
     void HandlePlayerDeath()
     {
-        // alternatywa dla rb.simulated = false
-        //rb.constraints = RigidbodyConstraints2D.FreezeAll;
-
         rb.simulated = false;
         GameManager.instance.HandleGameOver();
     }
